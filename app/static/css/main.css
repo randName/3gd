@@ -1,0 +1,8 @@
+.nav-pad { height: 70px; }
+
+#geometryCanvas {
+	background:url(../images/security.jpg);
+	background-size: cover;
+	width: 100%;
+	height: auto;
+}
