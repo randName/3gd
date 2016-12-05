@@ -1,5 +1,10 @@
 .nav-pad { height: 70px; }
 
+.grid-item {
+	width: 24%;
+	margin-bottom: 10px;
+}
+
 #geometryCanvas {
 	background:url(../images/security.jpg);
 	background-size: cover;
