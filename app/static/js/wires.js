@@ -1,14 +1,15 @@
-var isDrawing, lines = {};
+var isDrawing, wires = {}, nwires = {};
 var selected = [];
-var linecount = 0;
+var wirecount = 0;
 var curpt, curname = "";
 
 $(document).ready(function(){
-	window.h = 540/$('#geometryCanvas').height();
-	window.w = 960/$('#geometryCanvas').width();
+	window.h = 300/$('#geometryCanvas').height();
+	window.w = 400/$('#geometryCanvas').width();
 	$('canvas').mouseup(clickHandler);
-	$('#newline').click(newLine);
-	$('#delline').click(deleteSelected);
+	$('#save').click(pushWires);
+	$('#newwire').click(newWire);
+	$('#delwire').click(deleteSelected);
 	/*
 	$('#linesel').select2({
 		allowClear: true,
@@ -20,6 +21,38 @@ $(document).ready(function(){
 
 function nameChange(e) {
 	console.log($(e.target).val());	
+}
+
+function pushWires() {
+    var promises = [];
+
+    $.each( nwires, function(i,v){
+        v.points = [];
+        for ( var i=1; i<=v.numpt; i++ ) {
+            v.points.push([ Math.round(v['x'+i]), Math.round(v['y'+i]) ]);
+            delete v['x'+i];
+            delete v['y'+i];
+        }
+        delete v.numpt;
+        delete v.data;
+        promises.push( $.ajax( 'wires/new', {
+            type: 'POST', contentType: 'application/json',
+            data: JSON.stringify(v),
+            success: function(r) {
+                console.log(r);
+            },
+            error: function(r) {
+               console.log(r);
+            }
+        }));
+    });
+
+    nwires = {};
+
+    $.when.apply(null, promises).done(function(){
+        console.log('all uploaded');
+    });
+
 }
 
 function clearError() {
@@ -36,7 +69,7 @@ function clickHandler(e){
 	if ( isDrawing ) {
 		linePoint(x,y);
 	} else {
-		$.each( lines, function(k,v) {
+		$.each( wires, function(k,v) {
 			var l = v.data, d = Math.hypot(v.x1-x,v.y1-y) + Math.hypot(v.x2-x,v.y2-y);
 			if ( Math.abs(x-l.x) <= l.w/2 && Math.abs(y-l.y) <= l.h/2 && d <= l.l*1.005 ) {
 				clickLine(k);
@@ -46,10 +79,10 @@ function clickHandler(e){
 	}
 }
 
-function newLine() {
-	curname = 'line' + linecount;
-	linecount++;
-	showAlert('info','Please indicate the start and end of the line.');
+function newWire() {
+	curname = 'line' + wirecount;
+	wirecount++;
+	showAlert('info','Please indicate the start and end of the wire.');
 	isDrawing = true;
 	curpt = null;
 	/*
@@ -87,22 +120,26 @@ function deleteSelected() {
 function deleteLine(i,line) {
 	$('canvas').removeLayerGroup(line);
 	$('canvas').drawLayers();
-	delete lines[line];
+	delete wires[line];
+	delete nwires[line];
 }
 
 function linePoint(x,y) {
 	if ( !curpt ) {
-		curpt = { x1: x , y1: y, name: curname };
+		curpt = { x1: x , y1: y, name: curname, numpt: 1 };
 		toggleMarker(curpt);
 	} else {
 		toggleMarker(false);
-		curpt.x2 = x; curpt.y2 = y;
+        curpt.numpt += 1;
+		curpt['x'+curpt.numpt] = x;
+		curpt['y'+curpt.numpt] = y;
+        saveLine(curpt);
 		drawLine(curpt);
 		isDrawing = false;
 	}
 }
 
-function drawLine(line) {
+function saveLine(line) {
 	line.data = {
 		x: (line.x1+line.x2)/2,
 		y: (line.y1+line.y2)/2,
@@ -110,13 +147,16 @@ function drawLine(line) {
 		h: Math.abs(line.y1-line.y2),
 	};
 	line.data.l = Math.hypot(line.data.w,line.data.h);
-	lines[line.name] = JSON.parse(JSON.stringify(line));
+	wires[line.name] = JSON.parse(JSON.stringify(line));
+	nwires[line.name] = JSON.parse(JSON.stringify(line));
 	
 	var newline = new Option(line.name, line.name, true, true);
 	setTimeout(function(){$("#status").attr({style:'display:none'});}, 1000);
-	showAlert('success', '<strong>Success!</strong> Added new line.');
+	showAlert('success', '<strong>Success!</strong> Added new wire.');
 	//$('#linensel').append(newline).val(null).trigger('change');
-	
+}
+
+function drawLine(line) {
 	line.layer = true;
 	line.groups = [line.name, 'line'];
 	delete line.name;

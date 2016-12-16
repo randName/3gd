@@ -12,7 +12,7 @@
   <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="/static/js/select2.min.js"></script>
   <script type="text/javascript" src="/static/js/jcanvas.min.js"></script>
-  <script type="text/javascript" src="/static/js/lines.js"></script>
+  <script type="text/javascript" src="/static/js/wires.js"></script>
  </head>
  <body data-spy="scroll" data-target="#navbar">
   <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -27,7 +27,7 @@
     <div id="navbar" class="navbar-collapse collapse">
 	 <ul class="nav navbar-nav navbar-left">
 	  <li><a href="/">Cameras</a></li>
-	  <li class="active"><a href="#">Lines</a></li>
+	  <li class="active"><a href="#">Wires</a></li>
 	  <li><a href="/triggers">Triggers</a></li>
 	 </ul>
 	 <ul class="nav navbar-nav navbar-right">
@@ -38,22 +38,19 @@
   </nav>
   <div class="container">
    <div class="nav-pad"></div>
-   <div id="lines" class="panel panel-default">
-    <div class="panel-heading">Line Manager</div>
+   <div id="wires" class="panel panel-default">
+    <div class="panel-heading">Wire Manager</div>
     <div class="panel-body">
      <div id="status" role="alert" style="display:none"></div>
       <div class="well">
-       <canvas id="geometryCanvas" class="img-responsive" width="960" height="540"></canvas>
+       <canvas id="geometryCanvas" class="img-responsive" width="400" height="300"></canvas>
       </div>
       <div class="btn-toolbar">
-       <button class="btn btn-primary" type="button" id="newline">New Line</button>
-       <button class="btn btn-danger" type="button" id="delline">Delete Selected</button>
+       <button class="btn btn-success" type="button" id="newwire">New Wire</button>
+       <button class="btn btn-danger" type="button" id="delwire">Delete Selected</button>
+       <button class="btn btn-primary" type="button" id="save">Save</button>
       </div>
      </div>
-   </div>
-   <div id="triggers" class="panel panel-default">
-    <div class="panel-heading">Trigger Manager</div>
-    <div class="panel-body">Test</div>
    </div>
   </div>
  </body>
